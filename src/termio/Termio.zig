@@ -651,6 +651,11 @@ pub fn clearScreen(self: *Termio, td: *ThreadData, history: bool) !void {
         // self.terminal.markSemanticPrompt(.command);
         // assert(!self.terminal.cursorIsAtPrompt());
         self.terminal.eraseDisplay(.complete, false);
+
+        // At a prompt, the complete erase above takes the scroll-clear
+        // path (#905) and moves the visible screen into scrollback, which
+        // we erased before it. Erase history again so the clear is total.
+        if (history) self.terminal.eraseDisplay(.scrollback, false);
     }
 
     // If we reached here it means we're at a prompt, so we send a form-feed.
